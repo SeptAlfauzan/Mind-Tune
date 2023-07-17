@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Mind Tune</string>
+    <string name="play_on_spotify">Play on Spotify</string>
+    <string name="favorite_icon">favorite icon</string>
+    <string name="depression">Depression</string>
+    <string name="anxiety">Anxiety</string>
+    <string name="insomnia">Insomnia</string>
+    <string name="your">Your</string>
+    <string name="score_level">Score level</string>
+    <string name="auth">Login to Spotify</string>
+    <string name="appearance">Appearance</string>
+</resources>
