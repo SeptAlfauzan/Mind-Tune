@@ -127,7 +127,7 @@ private fun SongListened(
                                     SongListItem(
                                         imageUrl = it?.album?.images?.get(0)?.url ?: "none",
                                         songTitle = it?.name ?: "None",
-                                        artist = it?.artists?.joinToString(separator = ", ") ?: "None",
+                                        artist = it?.artists?.joinToString(", ") { it?.name ?: "None" } ?: "None",
                                         album = it?.album?.name ?: "None",
                                         duration = (it?.durationMs ?: 0).toString(),
                                         isFavorite = false

@@ -4,6 +4,7 @@ import android.content.Context
 import com.septalfauzan.mindtune.data.datastore.DatastorePreference
 import com.septalfauzan.mindtune.data.remote.APIResponse.TopArtistListResponse
 import com.septalfauzan.mindtune.data.remote.APIResponse.TopSongListResponse
+import com.septalfauzan.mindtune.data.remote.APIResponse.TrackResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.flowOf
 class SongsRepository(private val context: Context, private val datastorePreference: DatastorePreference): MainRepository(context, datastorePreference) {
     suspend fun getTopArtist(): Flow<TopArtistListResponse>{
         try {
-            val token = datastorePreference.getSpotifyToken().first()
+            val token = super.getToken()
             val result = spotifyApiServices.getTopArtist(token = "Bearer $token", limit = 20)
             return flowOf(result)
         }catch (e: Exception){
@@ -21,8 +22,18 @@ class SongsRepository(private val context: Context, private val datastorePrefere
 
     suspend fun getTopTrack(): Flow<TopSongListResponse>{
         try {
-            val token = datastorePreference.getSpotifyToken().first()
+            val token = super.getToken()
             val result = spotifyApiServices.getTopSongs(token = "Bearer $token", limit = 20)
+            return flowOf(result)
+        }catch (e: Exception){
+            throw e
+        }
+    }
+
+    suspend fun getTrack(id: String): Flow<TrackResponse>{
+        try {
+            val token = super.getToken()
+            val result = spotifyApiServices.getTrack(token = "Bearer $token", id = id)
             return flowOf(result)
         }catch (e: Exception){
             throw e

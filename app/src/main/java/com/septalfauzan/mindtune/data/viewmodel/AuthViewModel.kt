@@ -31,9 +31,9 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val token = repository.getToken()
             token.isNotEmpty().let {
-                if(repository.checkIsTokenValid()){
+                if (repository.checkIsTokenValid()) {
                     _isLogged.value = true
-                }else{
+                } else {
                     setSpotifyTokenAuth("")
                     _isLogged.value = false
                 }
@@ -53,22 +53,30 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
     }
 
     fun spotifyAuth(context: Activity, requestCode: Int, redirectUri: String) {
-        // Request code will be used to verify if result comes from the login activity. Can be set to any integer.
         val builder = AuthorizationRequest.Builder(
             context.getString(R.string.SPOTIFY_CLIENT_KEY),
             AuthorizationResponse.Type.TOKEN,
             redirectUri
         )
-        builder.setScopes(arrayOf("streaming", "user-top-read", "user-read-recently-played", "user-library-read", "user-read-private", "user-read-email"))
+        builder.setScopes(
+            arrayOf(
+                "streaming",
+                "user-top-read",
+                "user-read-recently-played",
+                "user-library-read",
+                "user-read-private",
+                "user-read-email"
+            )
+        )
         val request = builder.build()
         AuthorizationClient.openLoginInBrowser(context, request)
     }
 
-    fun spotifyLogout(context: Context, openSuccessView: () -> Unit){
+    fun spotifyLogout(context: Context, openSuccessView: () -> Unit) {
         AuthorizationClient.clearCookies(context)
         setSpotifyTokenAuth("")
         viewModelScope.launch {
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 openSuccessView()
             }
         }

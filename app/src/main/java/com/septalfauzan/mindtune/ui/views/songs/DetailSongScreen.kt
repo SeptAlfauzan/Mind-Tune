@@ -2,12 +2,12 @@ package com.septalfauzan.mindtune.ui.views.songs
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -28,79 +28,106 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.septalfauzan.mindtune.R
+import com.septalfauzan.mindtune.data.remote.APIResponse.TrackResponse
+import com.septalfauzan.mindtune.ui.common.ScreenArguments
+import com.septalfauzan.mindtune.ui.common.UiState
 import com.septalfauzan.mindtune.ui.theme.MindTuneTheme
 import com.septalfauzan.mindtune.ui.views.components.RoundedButton
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 
 @Composable
-fun DetailSongScreen() {
-    DetailSongContent()
+fun DetailSongScreen(id: String, arguments: ScreenArguments.DetailSongArguments) {
+    DetailSongContent(
+        trackStateFlow = arguments.trackStateFlow,
+        loadTrack = { arguments.loadTrack(id) },
+    )
 }
 
 @Composable
-fun DetailSongContent() {
-    var vibrantColor: Int? by remember {
-        mutableStateOf(null)
-    }
-    var darkVibrantColor: Int? by remember {
+fun DetailSongContent(
+    trackStateFlow: StateFlow<UiState<TrackResponse>>,
+    loadTrack: () -> Unit,
+) {
+    var dominantColor: Int? by remember {
         mutableStateOf(null)
     }
 
-    Column(
-        Modifier
-            .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    colorStops = arrayOf(
-                        0f to Color(vibrantColor ?: MaterialTheme.colors.background.hashCode()),
-                        0.2f to Color(
-                            darkVibrantColor ?: MaterialTheme.colors.background.hashCode()
-                        ),
-                        1f to MaterialTheme.colors.background
-                    ),
-                    radius = 1000f
-                )
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        SongCard(
-            updateGradientBg = { vibrant, darkVibrant ->
-                vibrantColor = vibrant
-                darkVibrantColor = darkVibrant
+    trackStateFlow.collectAsState(initial = UiState.Loading).value.let { uiState ->
+        when (uiState) {
+            is UiState.Loading -> {
+                CircularProgressIndicator()
+                loadTrack()
             }
-        )
-        Spacer(modifier = Modifier.height(28.dp))
-        RoundedButton(text = stringResource(R.string.play_on_spotify))
+            is UiState.Success -> {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.radialGradient(
+                                colorStops = arrayOf(
+                                    0f to Color(
+                                        dominantColor ?: MaterialTheme.colors.background.hashCode()
+                                    ),
+                                    0.8f to MaterialTheme.colors.background
+                                ),
+                                radius = 1000f
+                            )
+                        ),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    SongCard(
+                        imageAlbumUrl = uiState.data.album?.images?.get(0)?.url ?: "None",
+                        songTitle = uiState.data.name ?: "None",
+                        artist = uiState.data.artists?.joinToString(", ") { it?.name ?: "None" }
+                            ?: "None",
+                        spotifUrl = "",
+                        updateGradientBg = {
+                            dominantColor = it
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(28.dp))
+                    RoundedButton(text = stringResource(R.string.play_on_spotify))
+                }
+            }
+            is UiState.Error -> Text(text = "error: ${uiState.errorMessage}")
+        }
     }
 }
 
 @Composable
-fun SongInfo() {
+fun SongInfo(
+    songTitle: String,
+    artistName: String,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = "Song name",
+            text = songTitle,
             style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Bold)
         )
-        Text(text = "Artist name", style = MaterialTheme.typography.subtitle2)
+        Text(text = artistName, style = MaterialTheme.typography.subtitle2)
     }
 }
 
 @Composable
 fun SongCard(
-    updateGradientBg: (firstColor: Int, secondColor: Int) -> Unit,
+    updateGradientBg: (color: Int) -> Unit,
+    imageAlbumUrl: String,
+    songTitle: String,
+    artist: String,
+    spotifUrl: String,
 ) {
-    val url =
-        "https://plus.unsplash.com/premium_photo-1688464908902-35c67647df83?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=435&q=80"
+    //        "https://plus.unsplash.com/premium_photo-1688464908902-35c67647df83?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=435&q=80"
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(imageAlbumUrl) {
         withContext(Dispatchers.IO) {
             try {
                 val imageLoader = ImageLoader(context)
                 val request = ImageRequest.Builder(context)
-                    .data(url)
+                    .data(imageAlbumUrl)
                     .allowHardware(false)
                     .target {
                         val result = it
@@ -109,7 +136,7 @@ fun SongCard(
                         getTwoDominantColors(
                             imageBitmap = resizedBitmap,
                             context = context,
-                            updateState = { first, second -> updateGradientBg(first, second) }
+                            updateState = { color -> updateGradientBg(color) }
                         )
                     }
                     .build()
@@ -134,7 +161,7 @@ fun SongCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AsyncImage(
-                model = url,
+                model = imageAlbumUrl,
                 modifier = Modifier
                     .width(164.dp)
                     .height(164.dp)
@@ -143,7 +170,7 @@ fun SongCard(
                 contentDescription = null,
             )
             Spacer(modifier = Modifier.weight(1f))
-            SongInfo()
+            SongInfo(songTitle, artist)
         }
     }
 }
@@ -151,18 +178,18 @@ fun SongCard(
 private fun getTwoDominantColors(
     imageBitmap: Bitmap,
     context: Context,
-    updateState: (first: Int, second: Int) -> Unit
+    updateState: (color: Int) -> Unit
 ) {
-    val imageBitmapHolder =
-        BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher_background)
-
+//    val imageBitmapHolder =
+//        BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher_background)
 
     Palette.from(imageBitmap).generate() { pallet ->
         pallet?.let {
+//            Log.d("TAG", "getTwoDominantColors: ${it.getDominantColor(0x000000)}")
             val vibrant = it.getVibrantColor(0x000000)
             val darkVibrant = it.getDarkVibrantColor(0x000000)
-            val dominantColor = it.getDominantColor(0xFF1212)
-            updateState(vibrant, darkVibrant)
+            val dominantColor = it.getDominantColor(0x001212)
+            updateState(dominantColor)
         }
     }
 }
@@ -171,6 +198,6 @@ private fun getTwoDominantColors(
 @Composable
 private fun Preview() {
     MindTuneTheme {
-        DetailSongScreen()
+//        DetailSongScreen()
     }
 }

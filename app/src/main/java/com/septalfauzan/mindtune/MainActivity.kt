@@ -3,12 +3,9 @@ package com.septalfauzan.mindtune
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.Window
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
@@ -16,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -37,7 +33,6 @@ import com.septalfauzan.mindtune.di.Injection
 import com.septalfauzan.mindtune.helpers.RecommendationType
 import com.septalfauzan.mindtune.helpers.Screen
 import com.septalfauzan.mindtune.ui.common.ScreenArguments
-import com.septalfauzan.mindtune.ui.common.UiState
 import com.septalfauzan.mindtune.ui.theme.MindTuneTheme
 import com.septalfauzan.mindtune.ui.views.auth.AuthScreen
 import com.septalfauzan.mindtune.ui.views.components.MentalHealthTypes
@@ -46,8 +41,6 @@ import com.septalfauzan.mindtune.ui.views.profile.ProfileScreen
 import com.septalfauzan.mindtune.ui.views.recommendation.RecommendationScreen
 import com.septalfauzan.mindtune.ui.views.songs.DetailSongScreen
 import com.spotify.sdk.android.auth.AuthorizationResponse
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 
 class MainActivity : ComponentActivity() {
@@ -154,6 +147,11 @@ class MainActivity : ComponentActivity() {
                     topTrackStateFlow = songViewModel.topTracks
                 )
 
+                val detailSongArguments = ScreenArguments.DetailSongArguments(
+                    loadTrack = { id -> songViewModel.getTrack(id) },
+                    trackStateFlow = songViewModel.track
+                )
+
                 Surface(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -214,7 +212,10 @@ class MainActivity : ComponentActivity() {
                             composable(
                                 route = Screen.DetailSong.route
                             ) {
-                                DetailSongScreen()
+                                DetailSongScreen(
+                                    id = "0d28khcov6AiegSCpG5TuT",
+                                    arguments = detailSongArguments
+                                )
                             }
                         }
                     }

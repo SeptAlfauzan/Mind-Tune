@@ -86,13 +86,12 @@ fun RecommendationScreenContent(
             columns = cellConfiguration,
             verticalItemSpacing = 8.dp,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(top = 32.dp)
         ) {
             item(span = StaggeredGridItemSpan.FullLine) {
                 Text(
                     text = "Songs Recommendation",
                     modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 32.dp)
+                        .padding(start = 16.dp, end = 16.dp, bottom = 32.dp)
                         .width(440.dp),
                     style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Bold)
                 )

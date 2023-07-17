@@ -3,6 +3,7 @@ package com.septalfauzan.mindtune.ui.common
 import androidx.activity.ComponentActivity
 import com.septalfauzan.mindtune.data.remote.APIResponse.TopArtistListResponse
 import com.septalfauzan.mindtune.data.remote.APIResponse.TopSongListResponse
+import com.septalfauzan.mindtune.data.remote.APIResponse.TrackResponse
 import com.septalfauzan.mindtune.data.remote.APIResponse.UserProfileResponse
 import com.septalfauzan.mindtune.data.ui.MentalHealth
 import com.septalfauzan.mindtune.ui.views.components.MentalHealthTypes
@@ -35,4 +36,8 @@ object ScreenArguments {
         val topTrackStateFlow: StateFlow<UiState<TopSongListResponse>>,
     )
 
+    data class DetailSongArguments(
+        val trackStateFlow: StateFlow<UiState<TrackResponse>>,
+        val loadTrack: (String) -> Unit,
+    )
 }
