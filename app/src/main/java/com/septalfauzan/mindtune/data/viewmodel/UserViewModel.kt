@@ -14,13 +14,17 @@ import com.septalfauzan.mindtune.ui.common.UiState
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class UserViewModel(private val repository: UserRepository) : ViewModel() {
+@HiltViewModel
+class UserViewModel @Inject constructor(private val repository: UserRepository) : ViewModel() {
 
     private val _eventChannel = Channel<SingleEvent>()
     val eventFlow = _eventChannel.receiveAsFlow()

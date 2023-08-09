@@ -11,6 +11,7 @@ import com.septalfauzan.mindtune.data.repositories.AuthRepository
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,8 +19,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
+@HiltViewModel
+class AuthViewModel @Inject constructor(private val repository: AuthRepository) : ViewModel() {
 
     private val _eventChannel = Channel<SingleEvent>()
     val eventFlow = _eventChannel.receiveAsFlow()

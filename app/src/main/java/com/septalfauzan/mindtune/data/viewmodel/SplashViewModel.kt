@@ -5,10 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.septalfauzan.mindtune.data.repositories.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SplashViewModel(repository: AuthRepository) : ViewModel(){
+@HiltViewModel
+class SplashViewModel @Inject constructor(repository: AuthRepository) : ViewModel(){
 
     private val _isLoading = mutableStateOf(true)
     val isLoading: State<Boolean> = _isLoading

@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
@@ -41,11 +42,18 @@ import com.septalfauzan.mindtune.ui.views.profile.ProfileScreen
 import com.septalfauzan.mindtune.ui.views.recommendation.RecommendationScreen
 import com.septalfauzan.mindtune.ui.views.songs.DetailSongScreen
 import com.spotify.sdk.android.auth.AuthorizationResponse
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var authViewModel: AuthViewModel
     lateinit var navHostController: NavHostController
+
+    private val authViewModel: AuthViewModel by viewModels()
+    private val songViewModel: SongViewModel by viewModels()
+    private val splashViewModel: SplashViewModel by viewModels()
+    private val userViewModel: UserViewModel by viewModels()
 
     companion object {
         const val REQUEST_CODE = 1337
@@ -53,23 +61,6 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
-        val splashViewModel =
-            ViewModelFactory(Injection.provideInjection(this) as AuthRepository).create(
-                SplashViewModel::class.java
-            )
-        val userViewModel =
-            ViewModelFactory(Injection.provideInjection(this) as UserRepository).create(
-                UserViewModel::class.java
-            )
-        val songViewModel =
-            ViewModelFactory(Injection.provideInjection(this) as SongsRepository).create(
-                SongViewModel::class.java
-            )
-        authViewModel =
-            ViewModelFactory(Injection.provideInjection(this) as AuthRepository).create(
-                AuthViewModel::class.java
-            )
 
         super.onCreate(savedInstanceState)
 

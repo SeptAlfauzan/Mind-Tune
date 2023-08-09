@@ -8,6 +8,7 @@ import com.septalfauzan.mindtune.data.remote.APIResponse.TopSongListResponse
 import com.septalfauzan.mindtune.data.remote.APIResponse.TrackResponse
 import com.septalfauzan.mindtune.data.repositories.SongsRepository
 import com.septalfauzan.mindtune.ui.common.UiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,8 +16,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SongViewModel(private val songsRepository: SongsRepository) : ViewModel() {
+@HiltViewModel
+class SongViewModel @Inject constructor(private val songsRepository: SongsRepository) : ViewModel() {
 
     private val _eventChannel = Channel<SingleEvent>()
     val eventFlow = _eventChannel.receiveAsFlow()

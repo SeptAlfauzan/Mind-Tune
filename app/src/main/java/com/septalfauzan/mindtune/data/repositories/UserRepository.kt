@@ -4,11 +4,15 @@ import android.content.Context
 import android.util.Log
 import com.septalfauzan.mindtune.data.datastore.DatastorePreference
 import com.septalfauzan.mindtune.data.remote.APIResponse.UserProfileResponse
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import javax.inject.Inject
 
-class UserRepository(private val context: Context, private val datastorePreference: DatastorePreference): MainRepository(context,datastorePreference) {
+@ViewModelScoped
+class UserRepository @Inject constructor(@ApplicationContext private val context: Context, private val datastorePreference: DatastorePreference): MainRepository(context,datastorePreference) {
 
     suspend fun getUserProfile(): Flow<UserProfileResponse> {
         try {

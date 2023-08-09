@@ -5,11 +5,15 @@ import com.septalfauzan.mindtune.data.datastore.DatastorePreference
 import com.septalfauzan.mindtune.data.remote.APIResponse.TopArtistListResponse
 import com.septalfauzan.mindtune.data.remote.APIResponse.TopSongListResponse
 import com.septalfauzan.mindtune.data.remote.APIResponse.TrackResponse
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import javax.inject.Inject
 
-class SongsRepository(private val context: Context, private val datastorePreference: DatastorePreference): MainRepository(context, datastorePreference) {
+@ViewModelScoped
+class SongsRepository @Inject constructor(@ApplicationContext private val context: Context, private val datastorePreference: DatastorePreference): MainRepository(context, datastorePreference) {
     suspend fun getTopArtist(): Flow<TopArtistListResponse>{
         try {
             val token = super.getToken()
