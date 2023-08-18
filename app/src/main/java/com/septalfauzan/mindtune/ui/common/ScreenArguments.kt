@@ -13,11 +13,13 @@ object ScreenArguments {
     data class HomeArguments(
         val itemList: List<MentalHealth>,
         val openRecommendations: Map<MentalHealthTypes, () -> Unit>,
+        val topTrackStateFlow: StateFlow<UiState<TopSongListResponse>>,
+        val topArtistStateFlow: StateFlow<UiState<TopArtistListResponse>>,
         val openUserProfile: () -> Unit,
         val loadTopTracks: () -> Unit,
-        val topTrackStateFlow: StateFlow<UiState<TopSongListResponse>>,
         val loadTopArtist: () -> Unit,
-        val topArtistStateFlow: StateFlow<UiState<TopArtistListResponse>>
+        val reloadTopArtist: () -> Unit,
+        val reloadTopTracks: () -> Unit,
     )
 
     data class AuthArguments(
@@ -39,5 +41,6 @@ object ScreenArguments {
     data class DetailSongArguments(
         val trackStateFlow: StateFlow<UiState<TrackResponse>>,
         val loadTrack: (String) -> Unit,
+        val reloadTrack: () -> Unit,
     )
 }

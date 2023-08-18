@@ -150,8 +150,9 @@ fun SongCard(
     Card(
         modifier = Modifier.background(
             color = MaterialTheme.colors.surface,
-            shape = RoundedCornerShape(size = 8.dp)
-        )
+            shape = RoundedCornerShape(size = 32.dp)
+        ),
+        shape = RoundedCornerShape(size = 32.dp)
     ) {
         Column(
             modifier = Modifier
@@ -189,7 +190,7 @@ private fun getTwoDominantColors(
             val vibrant = it.getVibrantColor(0x000000)
             val darkVibrant = it.getDarkVibrantColor(0x000000)
             val dominantColor = it.getDominantColor(0x001212)
-            updateState(dominantColor)
+            updateState(vibrant)
         }
     }
 }

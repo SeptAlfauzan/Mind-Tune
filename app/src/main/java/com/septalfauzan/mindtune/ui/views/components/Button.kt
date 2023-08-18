@@ -5,6 +5,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.septalfauzan.mindtune.ui.theme.Black
@@ -30,7 +31,7 @@ fun RoundedButton(
     ) {
         Text(
             text = text, style = MaterialTheme.typography.caption.copy(
-                color = if (type == RoundedButtonType.PRIMARY) Black else MaterialTheme.colors.background
+                color = if (type == RoundedButtonType.SECONDARY) MaterialTheme.colors.background else Color.White
             )
         )
     }
@@ -40,7 +41,6 @@ fun RoundedButton(
 @Composable
 private fun Preview() {
     MindTuneTheme {
-        RoundedButton()
     }
 }
 

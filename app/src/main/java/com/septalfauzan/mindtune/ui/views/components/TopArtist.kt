@@ -121,6 +121,7 @@ val dummyArtists = listOf(
 fun TopArtist(
     topArtistStateFlow: StateFlow<UiState<TopArtistListResponse>>,
     loadTopArtist: () -> Unit,
+    reloadTopArtist: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val maxCount = 8
@@ -161,7 +162,13 @@ fun TopArtist(
                         }
                     }
                 }
-                is UiState.Error -> Text(uiState.errorMessage)
+                is UiState.Error -> {
+                    ErrorHandlerUI(
+                        message = uiState.errorMessage,
+                        onRefresh = reloadTopArtist,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }

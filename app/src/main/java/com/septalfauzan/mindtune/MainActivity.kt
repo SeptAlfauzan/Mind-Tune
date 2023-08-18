@@ -63,7 +63,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-
         installSplashScreen().setKeepOnScreenCondition {
             splashViewModel.isLoading.value
         }
@@ -105,7 +104,9 @@ class MainActivity : ComponentActivity() {
                     loadTopTracks = { songViewModel.getTopTrack() },
                     topTrackStateFlow = songViewModel.topTracks,
                     loadTopArtist = { songViewModel.getTopArtist() },
-                    topArtistStateFlow = songViewModel.topArtist
+                    topArtistStateFlow = songViewModel.topArtist,
+                    reloadTopArtist = songViewModel.reloadTopArtist,
+                    reloadTopTracks = songViewModel.reloadTopTracks,
                 )
 
                 val authArguments = ScreenArguments.AuthArguments(
@@ -140,7 +141,8 @@ class MainActivity : ComponentActivity() {
 
                 val detailSongArguments = ScreenArguments.DetailSongArguments(
                     loadTrack = { id -> songViewModel.getTrack(id) },
-                    trackStateFlow = songViewModel.track
+                    trackStateFlow = songViewModel.track,
+                    reloadTrack = songViewModel.reloadTrack
                 )
 
                 Surface(
@@ -173,6 +175,7 @@ class MainActivity : ComponentActivity() {
                             navController = navHostController,
                             startDestination = if (isUserLogged) Screen.Home.route else Screen.Auth.route,
                         ) {
+
                             composable(Screen.Auth.route) {
                                 AuthScreen(authArguments = authArguments)
                             }

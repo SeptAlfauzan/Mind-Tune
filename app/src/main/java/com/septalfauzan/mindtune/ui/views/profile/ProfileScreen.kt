@@ -1,6 +1,8 @@
 package com.septalfauzan.mindtune.ui.views.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -11,7 +13,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -125,7 +130,12 @@ fun ProfileScreenContent(userProfile: UserProfileResponse, logoutAction: () -> U
                 }
             }
         }
-        RoundedButton(text = "Logout", type = RoundedButtonType.SECONDARY, onClick = logoutAction, modifier = Modifier.width(88.dp))
+        RoundedButton(
+            text = "Logout",
+            type = RoundedButtonType.SECONDARY,
+            onClick = logoutAction,
+            modifier = Modifier.width(88.dp)
+        )
         Setting()
     }
 }
@@ -137,13 +147,40 @@ private fun Setting(modifier: Modifier = Modifier) {
         mutableStateOf(false)
     }
 
+    val density = LocalDensity.current
+    val strokeWidthPx = density.run { 1.dp.toPx() }
+    val borderColor = MaterialTheme.colors.onSurface.copy(alpha = 0.3f)
+
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(stringResource(R.string.appearance), style = MaterialTheme.typography.body1)
-        Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        Spacer(
+            modifier = Modifier
+                .height(16.dp)
+                .fillMaxWidth()
+                .drawBehind {
+                    val width = size.width
+                    val height = size.height - strokeWidthPx / 2
+
+                    drawLine(
+                        color = borderColor,
+                        start = Offset(x = 0f, y = height),
+                        end = Offset(x = width, y = height),
+                        strokeWidth = strokeWidthPx
+                    )
+                }
+        )
+        Text(
+            stringResource(R.string.appearance),
+            style = MaterialTheme.typography.body1,
+            color = MaterialTheme.colors.onSurface.copy(alpha = 0.3f)
+        )
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(
                 text = "Dark mode",
-                style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight(700))
+                style = MaterialTheme.typography.body1
             )
             Switch(checked = isChecked, colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colors.onBackground,

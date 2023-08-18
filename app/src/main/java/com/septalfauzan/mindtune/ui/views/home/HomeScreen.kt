@@ -17,8 +17,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.septalfauzan.mindtune.R
@@ -27,9 +25,7 @@ import com.septalfauzan.mindtune.data.remote.APIResponse.TopSongListResponse
 import com.septalfauzan.mindtune.data.ui.MentalHealth
 import com.septalfauzan.mindtune.ui.common.ScreenArguments
 import com.septalfauzan.mindtune.ui.common.UiState
-import com.septalfauzan.mindtune.ui.theme.MindTuneTheme
 import com.septalfauzan.mindtune.ui.views.components.*
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 private val dummyList = listOf<MentalHealth>(
@@ -44,13 +40,15 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
 ) {
     HomeScreenContent(
-        arguments.loadTopTracks,
-        arguments.topTrackStateFlow,
-        arguments.loadTopArtist,
-        arguments.topArtistStateFlow,
-        arguments.itemList,
-        arguments.openRecommendations,
-        arguments.openUserProfile,
+        loadTopArtist = arguments.loadTopArtist,
+        loadTopTrack = arguments.loadTopTracks,
+        reloadTopArtist = arguments.reloadTopArtist,
+        reloadTopTracks = arguments.reloadTopTracks,
+        topTrackStateflow = arguments.topTrackStateFlow,
+        topArtistStateflow = arguments.topArtistStateFlow,
+        itemList = arguments.itemList,
+        openRecommendations = arguments.openRecommendations,
+        openUserProfile = arguments.openUserProfile,
         modifier = modifier
     )
 }
@@ -58,8 +56,10 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     loadTopTrack: () -> Unit,
-    topTrackStateflow: StateFlow<UiState<TopSongListResponse>>,
     loadTopArtist: () -> Unit,
+    reloadTopArtist: () -> Unit,
+    reloadTopTracks: () -> Unit,
+    topTrackStateflow: StateFlow<UiState<TopSongListResponse>>,
     topArtistStateflow: StateFlow<UiState<TopArtistListResponse>>,
     itemList: List<MentalHealth>,
     openRecommendations: Map<MentalHealthTypes, () -> Unit>,
@@ -72,7 +72,7 @@ fun HomeScreenContent(
             openUserProfile = openUserProfile
         )
         Text(
-            text = "Welcome to Mind Tune",
+            text = "Good Evening",
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
             style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Bold)
         )
@@ -87,14 +87,15 @@ fun HomeScreenContent(
                 })
             }
         }
-        ArtistListened(loadTopArtist, topArtistStateflow)
-        SongListened(loadTopTrack, topTrackStateflow)
+        ArtistListened(loadTopArtist, reloadTopArtist, topArtistStateflow)
+        SongListened(loadTopTrack, reloadTopTracks, topTrackStateflow)
     }
 }
 
 @Composable
 private fun SongListened(
-    loadTopTrack: () -> Unit,
+    loadTopTracks: () -> Unit,
+    reloadTopTracks: () -> Unit,
     topTrackStateflow: StateFlow<UiState<TopSongListResponse>>
 ) {
     Column {
@@ -115,10 +116,10 @@ private fun SongListened(
                 when (uiState) {
                     is UiState.Loading -> {
                         CircularProgressIndicator()
-                        loadTopTrack()
+                        loadTopTracks()
                     }
                     is UiState.Success ->
-                        uiState.data.items?.let{songItem ->
+                        uiState.data.items?.let { songItem ->
                             LazyColumn(
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -127,7 +128,9 @@ private fun SongListened(
                                     SongListItem(
                                         imageUrl = it?.album?.images?.get(0)?.url ?: "none",
                                         songTitle = it?.name ?: "None",
-                                        artist = it?.artists?.joinToString(", ") { it?.name ?: "None" } ?: "None",
+                                        artist = it?.artists?.joinToString(", ") {
+                                            it?.name ?: "None"
+                                        } ?: "None",
                                         album = it?.album?.name ?: "None",
                                         duration = (it?.durationMs ?: 0).toString(),
                                         isFavorite = false
@@ -135,7 +138,13 @@ private fun SongListened(
                                 }
                             }
                         } ?: Text(text = "No favorite song yet.")
-                    is UiState.Error -> Text(text = uiState.errorMessage)
+                    is UiState.Error -> {
+                        ErrorHandlerUI(
+                            message = uiState.errorMessage,
+                            onRefresh = reloadTopTracks,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
 
             }
@@ -146,6 +155,7 @@ private fun SongListened(
 @Composable
 private fun ArtistListened(
     loadTopArtist: () -> Unit,
+    reloadTopArtist: () -> Unit,
     topArtistStateflow: StateFlow<UiState<TopArtistListResponse>>
 ) {
     Column {
@@ -160,7 +170,11 @@ private fun ArtistListened(
             )
             RoundedButton(text = "See more", type = RoundedButtonType.SECONDARY)
         }
-        TopArtist(topArtistStateFlow = topArtistStateflow, loadTopArtist = loadTopArtist)
+        TopArtist(
+            topArtistStateFlow = topArtistStateflow,
+            loadTopArtist = loadTopArtist,
+            reloadTopArtist = reloadTopArtist
+        )
     }
 
 }
@@ -183,20 +197,5 @@ private fun Avatar(
                 .clickable { openUserProfile() },
             placeholder = painterResource(id = R.drawable.ic_launcher_foreground)
         )
-    }
-}
-
-@Preview(showBackground = true, device = Devices.PIXEL_4)
-@Composable
-private fun Preview() {
-    MindTuneTheme {
-        HomeScreenContent(
-            {},
-            MutableStateFlow(UiState.Loading),
-            {},
-            MutableStateFlow(UiState.Loading),
-            dummyList,
-            mapOf(),
-            {})
     }
 }
