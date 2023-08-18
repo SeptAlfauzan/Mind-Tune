@@ -12,3 +12,10 @@ App features:
 - Top genre listened
 - Detail song ✅
 - Recommendation based on mental health score
+
+To run this project in your Android Studio
+
+1. Clone this repo
+2. Sync the gradle dependencies
+3. Rebuild this project
+4. Run it
